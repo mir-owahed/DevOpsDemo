@@ -151,5 +151,3 @@ git pull --ff        # Pull with fast-forward
 
 Congratulations! You've learned the basics of Git and GitHub, including SSH setup, configuration, and branching. Happy coding!
 ```
-
-This markdown file is ready to use on your blog. Let me know if you need more modifications!
