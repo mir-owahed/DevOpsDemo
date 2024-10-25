@@ -16,6 +16,95 @@ git config --global --get user.email
 ## Create Repository on GitHub
 ## Push your code-base into GitHub
 ```
+
+
+  198  git --version
+
+  199  git init
+
+  200  git status
+
+  201  git add .
+
+  202  git commit -m "initial commit"
+
+  203  git status
+
+  204  git remote add origin git@github.com:mir-owahed/learn-git-github.git
+
+  205  git remote -v
+
+  206  git branch -M main
+
+  207  git push -u origin main
+
+  208  git status
+
+  209  git add .
+
+  210  git commit -m "added blog post"
+
+  211  git status
+
+  212  git push -u origin main
+
+  213  cd ..
+
+  214  rm -rf learn-git
+
+  215  git clone git@github.com:mir-owahed/learn-git-github.git
+
+  216  cd learn-git-github/
+
+  217  code .
+
+  218  ls
+
+  219  git branch
+
+  220  git checkout -b hot-fix
+
+  221  git branch
+
+  222  git status
+
+  223  git add .
+
+  224  git commit -m "updated first blog post"
+
+  225  git status
+
+  226  git push -u origin hot-fix
+
+  227  git status
+
+  228  git push -u origin hot-fix
+
+  229  git branch
+
+  230  git branch main
+
+  231  git checkout main
+
+  232  git status
+
+  233  git add .
+
+  234  git commit -m "i line added - step by step"
+
+  235  git push -u origin main
+
+  236  git fetch
+
+  237  git pull --ff
+
+  238  git status
+
+  239  git push -u origin main
+```
+
+
+```
 135  git clone git@github.com:mir-owahed/git-test.git
 
   136  cd git-test/
