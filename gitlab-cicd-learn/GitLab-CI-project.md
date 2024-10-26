@@ -9,6 +9,10 @@ In this guide, we’ll walk through the process of building a complete GitLab-CI
 
 [Watch the full tutorial on YouTube](https://youtu.be/7UZodcpyiNA) to follow along with step-by-step instructions.
 
+## Code Repository
+
+You can find the complete code repository for this tutorial here: [GitLab Boardgame Repository](https://gitlab.com/mir-owahed/Boardgame).
+
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [Step 1: Setting Up GitLab Runner on AWS](#step-1-setting-up-gitlab-runner-on-aws)
