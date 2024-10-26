@@ -180,6 +180,7 @@ build_image_push-job:
 ## Step 4: Running the Pipeline
 
 Once your `.gitlab-ci.yml` file is committed to your GitLab repository, the pipeline will trigger automatically.
+
 ---
 ## Conclusion
 
