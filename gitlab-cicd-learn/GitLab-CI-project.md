@@ -11,7 +11,7 @@ In this guide, we’ll walk through the process of building a complete GitLab-CI
 
 ## Code Repository
 
-You can find the complete code repository for this tutorial here: [GitLab Boardgame Repository](https://gitlab.com/mir-owahed/Boardgame).
+You can find the complete code repository for this tutorial here: [GitLab CI Pipeline Project](https://gitlab.com/mir-owahed/Boardgame).
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
