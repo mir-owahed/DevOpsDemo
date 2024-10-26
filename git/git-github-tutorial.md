@@ -3,7 +3,10 @@
 
 In this guide, we'll cover the essentials of connecting a local Git repository to GitHub using SSH, setting up Git configurations, and pushing code to GitHub. Follow along for a complete step-by-step process.
 
-**Watch the video tutorial here**: [Git and GitHub for Absolute Beginners](https://youtu.be/Fnom1RW9yPw)
+---
+**🎥 Watch the Video Tutorial**  
+[![Git and GitHub for Absolute Beginners](https://img.youtube.com/vi/Fnom1RW9yPw/0.jpg)](https://youtu.be/Fnom1RW9yPw)
+
 ---
 
 ## 1. Generating an SSH Key
