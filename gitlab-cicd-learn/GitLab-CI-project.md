@@ -175,16 +175,14 @@ build_image_push-job:
 - **Code Quality Job:** Performs a SonarQube scan on the Java code.
 - **Build Job:** Packages the Java application using Maven.
 - **Containerize Job:** Builds a Docker image of the application and pushes it to Docker Hub.
-
----
-
-## Conclusion
-
-With this setup, you have a robust **GitLab CI pipeline** for a **Java-based application**, integrating **DevSecOps** practices, **SonarQube** for code quality, and **Docker** for containerization. This pipeline provides a complete DevSecOps approach, from testing and building to code quality analysis and Docker image deployment.
-
-
 ---
 
 ## Step 4: Running the Pipeline
 
 Once your `.gitlab-ci.yml` file is committed to your GitLab repository, the pipeline will trigger automatically.
+---
+## Conclusion
+
+With this setup, you have a robust **GitLab CI pipeline** for a **Java-based application**, integrating **DevSecOps** practices, **SonarQube** for code quality, and **Docker** for containerization. This pipeline provides a complete DevSecOps approach, from testing and building to code quality analysis and Docker image deployment.
+
+
