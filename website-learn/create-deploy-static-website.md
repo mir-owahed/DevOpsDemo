@@ -8,6 +8,12 @@ Before we begin, ensure you have the following prerequisites:
 1. **Set up SSH with GitHub account.**
 2. **Install Node.js and Yarn** using the instructions below.
 3. **Create a repository on GitHub** to host your website.
+---
+## Watch the Tutorial
+
+[![Create a Portfolio or Documentation Website with Docusaurus & GitHub Pages | Auto Deployment](https://img.youtube.com/vi/IT4f7tPpyHE/0.jpg)](https://youtu.be/IT4f7tPpyHE)
+
+[Watch the full tutorial on YouTube](https://youtu.be/IT4f7tPpyHE) to follow along with step-by-step instructions.
 
 ---
 
