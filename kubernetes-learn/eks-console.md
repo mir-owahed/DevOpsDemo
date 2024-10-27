@@ -13,7 +13,13 @@ Before getting started, ensure you have the following:
 - **kubectl** installed and configured on your local machine.
 
 ---
+## Watch the Tutorial
 
+[![Create a secured Kubernetes cluster on AWS EKS](https://img.youtube.com/vi/XWaLU0alrvY/0.jpg)](https://youtu.be/XWaLU0alrvY)
+
+[Watch the full tutorial on YouTube](https://youtu.be/XWaLU0alrvY) to follow along with step-by-step instructions.
+
+---
 ## Step 1: Create a VPC with Public and Private Subnets
 
 To begin, you’ll need a VPC to host your cluster.
