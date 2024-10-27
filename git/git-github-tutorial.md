@@ -151,6 +151,22 @@ git pull --ff        # Pull with fast-forward
 
 ---
 
+## 9. Git Pull Request
+```
+git clone git@github.com:mir-owahed/git-github-pull-request.git
+cd git-github-pull-request/
+code .
+git branch
+git checkout -b git-pr-test
+git branch
+git add .
+git commit -m "markdown syntax added"
+git push
+git push --set-upstream origin git-pr-test
+```
+
+---
+
 ## Conclusion
 
 Congratulations! You've learned the basics of Git and GitHub, including SSH setup, configuration, and branching. Happy coding!
