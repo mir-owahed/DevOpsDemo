@@ -3,7 +3,12 @@
 
 In this guide, we’ll walk through the process of building a complete GitLab-CI pipeline for **Java-based applications**, focusing on **DevSecOps** best practices. We’ll cover everything from setting up infrastructure to running essential pipeline jobs like testing, code quality checks with SonarQube, building the application, and containerizing it with Docker.
 
-[![YouTube Video](https://img.youtube.com/vi/IT4f7tPpyHE/0.jpg)](https://www.youtube.com/watch?v=IT4f7tPpyHE)
+## Watch the Tutorial
+
+[![GitLab CI Pipeline Project | DevSecOps Tutorial with SonarQube, Docker, and AWS Setup](https://img.youtube.com/vi/7UZodcpyiNA/0.jpg)](https://youtu.be/7UZodcpyiNA)
+
+[Watch the full tutorial on YouTube](https://youtu.be/7UZodcpyiNA) to follow along with step-by-step instructions.
+
 
 
 ## Code Repository
