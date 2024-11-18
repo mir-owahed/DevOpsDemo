@@ -1,6 +1,3 @@
-Below is the guide rewritten using Markdown syntax for clarity:
-
-```markdown
 # Automated Infrastructure CI/CD Pipeline for EKS Cluster
 
 ## **Project Overview**
