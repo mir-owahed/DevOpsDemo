@@ -40,6 +40,7 @@ This project sets up a fully automated CI/CD pipeline for deploying a Kubernetes
    - `AWS_REGION`
    - `S3_BUCKET_NAME`
    - `DYNAMODB_TABLE_NAME`
+
 ......................
 ### **1. Check GitHub Secrets Setup**
 Ensure that the GitHub Secrets (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are correctly set up in your GitHub repository.
@@ -60,6 +61,7 @@ with:
 
 Replace `us-east-1` with your actual region if it's different.
 ...................................
+
 ## **Step 3: Terraform Configuration**
 ### 1. Set Up the Terraform Directory Structure:
    ```
