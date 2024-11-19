@@ -233,5 +233,3 @@ variable "cluster_name" {
 
 ### 2. Monitor Infrastructure using AWS CloudWatch, Prometheus, or other EKS monitoring tools.
 ```
-
-This guide now uses proper Markdown formatting, making it suitable for a README.md file or other documentation. Let me know if you'd like any changes or additional details!
