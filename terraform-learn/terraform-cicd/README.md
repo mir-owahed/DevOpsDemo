@@ -261,5 +261,3 @@ jobs:
 This guide sets up a secure infrastructure CI/CD pipeline using GitHub Actions for Terraform deployment on AWS EKS. It includes provisioning an EKS cluster, setting up a Bastion Host, installing ArgoCD, and accessing the ArgoCD UI for Kubernetes resource management. This configuration ensures centralized and automated infrastructure management, enhancing collaboration and security.
 
 --- 
-
-This Markdown file is now formatted for easy reading and step-by-step execution. Feel free to modify as needed!
