@@ -1,191 +1,250 @@
+# Automated Infrastructure CI/CD Pipeline Using GitHub Actions to Deploy a Private and Secured Kubernetes Cluster on AWS EKS (v1.30)
 
-# Fully Automated CI/CD Pipeline using GitHub Actions and Terraform to deploy a private and secured Kubernetes cluster on AWS EKS (v1.30)
+## **Overview**
 
-## Project Overview
-This guide provides step-by-step instructions to set up a **Fully Automated CI/CD Pipeline** using **GitHub Actions and Terraform** to deploy a private and secured Kubernetes cluster on **AWS EKS (v1.30)**. The infrastructure setup uses a remote backend (AWS S3) for centralized state management, ensuring collaboration among team members.
+- **Tools Used**: GitHub Actions, Terraform, AWS EKS, EC2 (Bastion Host), AWS S3 for Terraform backend, ArgoCD.
+- **Infrastructure Setup**:
+  - EKS Cluster in a private subnet.
+  - Bastion Host for secure access to the cluster.
+  - GitHub Actions CI/CD for automated infrastructure deployment.
+  - ArgoCD for managing Kubernetes resources.
 
-## Prerequisites
-- **AWS Account** with proper permissions to manage EKS, IAM, and networking resources.
-- **Terraform** installed locally for initial setup (optional).
-- **GitHub Account** and repository to hold the Terraform code.
-- **AWS CLI** configured with proper access keys.
-- **kubectl** installed for Kubernetes management.
-- Basic understanding of Terraform and GitHub Actions.
+## **Step-by-Step Guide**
 
-## Step 1: AWS Setup
-1. **Create an S3 Bucket** for storing the Terraform state file:
-   ```bash
-   aws s3api create-bucket --bucket your-s3-bucket-name --region your-region --create-bucket-configuration LocationConstraint=your-region
-   ```
-   
-2. **Enable Versioning** on the S3 bucket:
-   ```bash
-   aws s3api put-bucket-versioning --bucket your-s3-bucket-name --versioning-configuration Status=Enabled
-   ```
-   
-3. **Create a DynamoDB Table** for state locking:
-   ```bash
-   aws dynamodb create-table --table-name your-dynamodb-table-name --attribute-definitions AttributeName=LockID,AttributeType=S --key-schema AttributeName=LockID,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
-   ```
+### **Step 1: Set Up GitHub Repository and Secrets**
 
-## Step 2: GitHub Repository Setup
-1. **Create a GitHub Repository** to store your Terraform code. Clone it locally if needed:
-   ```bash
-   git clone https://github.com/your-username/your-repository.git
-   cd your-repository
-   ```
+1. **Create a GitHub Repository** for your Terraform code.
+2. **Add GitHub Secrets** for AWS credentials:
+   - `AWS_ACCESS_KEY_ID`: Your AWS access key.
+   - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
+   - Optional: Add `TF_VAR_region` and `TF_VAR_cluster_name` for Terraform variables.
 
-2. **Add GitHub Secrets** for secure handling of sensitive information:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_REGION`
-   - `S3_BUCKET_NAME`
-   - `DYNAMODB_TABLE_NAME`
+### **Step 2: Create Terraform Configuration Files**
 
-## Step 3: Terraform Configuration
-1. **Set Up the Terraform Directory Structure**:
-   ```
-   ├── main.tf
-   ├── variables.tf
-   ├── outputs.tf
-   ├── provider.tf
-   └── backend.tf
-   ```
+Create the following Terraform files in your repository.
 
-2. **Configure the `provider.tf`** file:
-   ```hcl
-   provider "aws" {
-     region = var.aws_region
-   }
-   ```
+#### **`provider.tf`**: Set up AWS provider and backend.
 
-3. **Configure the `backend.tf`** file to use S3 as the remote backend:
-   ```hcl
-   terraform {
-     backend "s3" {
-       bucket         = var.s3_bucket_name
-       key            = "terraform/state"
-       region         = var.aws_region
-       dynamodb_table = var.dynamodb_table_name
-     }
-   }
-   ```
-
-4. **Define the Infrastructure (`main.tf`)**:
-   - Example for setting up an EKS cluster:
-     ```hcl
-     module "eks" {
-       source          = "terraform-aws-modules/eks/aws"
-       cluster_name    = var.cluster_name
-       cluster_version = "1.30"
-       subnets         = module.vpc.private_subnets
-       vpc_id          = module.vpc.vpc_id
-
-       node_groups = {
-         eks_nodes = {
-           desired_capacity = 3
-           max_capacity     = 5
-           min_capacity     = 1
-
-           instance_type = "t3.medium"
-         }
-       }
-     }
-     ```
-
-## Step 4: GitHub Actions Workflow Setup
-1. **Create a GitHub Actions Workflow File** (`.github/workflows/terraform.yml`):
-   ```yaml
-   name: Terraform CI/CD Pipeline
-
-   on:
-     push:
-       branches:
-         - main
-     pull_request:
-       branches:
-         - main
-
-   jobs:
-     terraform:
-       name: Apply Terraform
-       runs-on: ubuntu-latest
-
-       steps:
-       - name: Checkout Code
-         uses: actions/checkout@v2
-
-       - name: Setup Terraform
-         uses: hashicorp/setup-terraform@v2
-         with:
-           terraform_version: 1.5.6
-
-       - name: Configure AWS Credentials
-         uses: aws-actions/configure-aws-credentials@v2
-         with:
-           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-           aws-region: ${{ secrets.AWS_REGION }}
-
-       - name: Terraform Init
-         run: terraform init
-
-       - name: Terraform Plan
-         run: terraform plan
-
-       - name: Terraform Apply
-         if: github.ref == 'refs/heads/main'
-         run: terraform apply -auto-approve
-   ```
-
-## Step 5: Write Terraform Variables (`variables.tf`)
-Define the variables used in the configuration:
 ```hcl
-variable "aws_region" {
-  description = "AWS region to deploy resources"
-  default     = "your-region"
+# provider.tf
+
+provider "aws" {
+  region = var.region
 }
 
-variable "s3_bucket_name" {
-  description = "S3 bucket for Terraform state"
-}
-
-variable "dynamodb_table_name" {
-  description = "DynamoDB table for state locking"
-}
-
-variable "cluster_name" {
-  description = "EKS cluster name"
-  default     = "my-eks-cluster"
+# Remote backend configuration (using S3 and DynamoDB for state locking)
+terraform {
+  backend "s3" {
+    bucket         = "your-terraform-state-bucket"
+    key            = "eks-cluster/terraform.tfstate"
+    region         = var.region
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
+  }
 }
 ```
 
-## Step 6: Initialize and Validate Infrastructure
-1. **Push the Code** to the GitHub repository:
+#### **`variables.tf`**: Define variables for reusability.
+
+```hcl
+# variables.tf
+
+variable "region" {
+  description = "The AWS region to deploy resources."
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "cluster_name" {
+  description = "The name of the EKS cluster."
+  type        = string
+  default     = "my-private-eks-cluster"
+}
+```
+
+#### **`main.tf`**: EKS cluster, VPC, and Bastion Host configuration.
+
+```hcl
+# main.tf
+
+# VPC Configuration
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "my-eks-vpc"
+  }
+}
+
+# Create Private Subnets
+resource "aws_subnet" "private" {
+  count             = 2
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.${count.index}.0/24"
+  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  map_public_ip_on_launch = false
+  tags = {
+    Name = "my-private-subnet-${count.index}"
+  }
+}
+
+# Create Internet Gateway for NAT Gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "my-eks-igw"
+  }
+}
+
+# Create EKS Cluster
+module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.30"
+  subnets         = aws_subnet.private[*].id
+  vpc_id          = aws_vpc.main.id
+  tags = {
+    Name = var.cluster_name
+  }
+}
+
+# EC2 Bastion Host Configuration
+resource "aws_key_pair" "bastion_key" {
+  key_name   = "bastion-key"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
+
+resource "aws_instance" "bastion" {
+  ami                    = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.private[0].id
+  associate_public_ip_address = true
+  key_name               = aws_key_pair.bastion_key.key_name
+
+  tags = {
+    Name = "bastion-host"
+  }
+}
+```
+
+#### **`outputs.tf`**: Outputs for Bastion Host and SSH Key.
+
+```hcl
+# outputs.tf
+
+output "bastion_public_ip" {
+  description = "Public IP of the Bastion Host"
+  value       = aws_instance.bastion.public_ip
+}
+
+output "bastion_ssh_key" {
+  description = "SSH Key for the Bastion Host"
+  value       = aws_key_pair.bastion_key.key_name
+}
+```
+
+### **Step 3: Configure GitHub Actions Workflow**
+
+Create a **`.github/workflows/terraform.yml`** file to automate infrastructure deployment using GitHub Actions.
+
+```yaml
+# .github/workflows/terraform.yml
+
+name: 'Terraform CI/CD Pipeline'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.9.8
+
+    - name: Terraform Init
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform init
+
+    - name: Terraform Plan
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform plan
+
+    - name: Terraform Apply
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: terraform apply -auto-approve
+```
+
+### **Step 4: Access EKS Using the Bastion Host**
+
+1. **Connect to the Bastion Host**:
+   
    ```bash
-   git add .
-   git commit -m "Initial Terraform setup for EKS"
-   git push origin main
+   ssh -i ~/.ssh/id_rsa ec2-user@<Bastion_Public_IP>
    ```
 
-2. **GitHub Actions** will trigger the pipeline automatically:
-   - **Terraform Init** initializes the configuration.
-   - **Terraform Plan** provides a preview of changes.
-   - **Terraform Apply** deploys the infrastructure if changes are made to the `main` branch.
-
-## Step 7: Access and Secure the EKS Cluster
-1. **Get the EKS Cluster Access**:
+2. **Install `kubectl` on the Bastion Host**:
+   
    ```bash
-   aws eks update-kubeconfig --region your-region --name my-eks-cluster
+   curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.24.0/2022-06-23/bin/linux/amd64/kubectl
+   chmod +x ./kubectl
+   sudo mv ./kubectl /usr/local/bin
    ```
 
-2. **Deploy Kubernetes Resources** using `kubectl`.
+3. **Configure `kubectl` to access the EKS Cluster**:
+   
+   ```bash
+   aws eks --region us-east-1 update-kubeconfig --name my-private-eks-cluster
+   ```
 
-## Step 8: Clean Up and Maintenance
-1. To **destroy the infrastructure** using the pipeline:
-   - Create a new GitHub Action workflow file, `.github/workflows/terraform-destroy.yml`.
-   - Add steps similar to the previous workflow, but replace `terraform apply` with `terraform destroy`.
+### **Step 5: Install ArgoCD on the EKS Cluster**
 
-2. **Monitor Infrastructure** using AWS CloudWatch and other monitoring tools for EKS.
+1. **Create the ArgoCD namespace**:
+   
+   ```bash
+   kubectl create namespace argocd
+   ```
 
-This setup ensures a collaborative environment for teams, allowing all members to work without local Terraform setups and keeping infrastructure consistent across deployments.
+2. **Install ArgoCD using the official YAML**:
+   
+   ```bash
+   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   ```
+
+3. **Change the ArgoCD service to LoadBalancer**:
+   
+   ```bash
+   kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+   ```
+
+4. **Get the initial admin password**:
+   
+   ```bash
+   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+   ```
+
+## **Conclusion**
+
+This guide sets up a secure infrastructure CI/CD pipeline using GitHub Actions for Terraform deployment on AWS EKS. It includes provisioning an EKS cluster, setting up a Bastion Host, and installing ArgoCD for Kubernetes resource management. This configuration ensures a centralized infrastructure management approach, enhancing collaboration and security.
+
+--- 
+
+Feel free to adapt this Markdown file to your specific needs!
