@@ -40,7 +40,26 @@ This project sets up a fully automated CI/CD pipeline for deploying a Kubernetes
    - `AWS_REGION`
    - `S3_BUCKET_NAME`
    - `DYNAMODB_TABLE_NAME`
+......................
+### **1. Check GitHub Secrets Setup**
+Ensure that the GitHub Secrets (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are correctly set up in your GitHub repository.
 
+1. **Go to your GitHub Repository**.
+2. **Navigate to `Settings` > `Secrets and variables` > `Actions`**.
+3. **Verify** that:
+   - You have two secrets: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+   - The values are correctly copied from your AWS IAM user credentials.
+
+### **2. Ensure Correct AWS Region in Workflow**
+Make sure that the `aws-region` in the workflow configuration is correctly set to the region you're using for your S3 bucket and DynamoDB table. For example:
+
+```yaml
+with:
+  aws-region: us-east-1
+```
+
+Replace `us-east-1` with your actual region if it's different.
+...................................
 ## **Step 3: Terraform Configuration**
 ### 1. Set Up the Terraform Directory Structure:
    ```
