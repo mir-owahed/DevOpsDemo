@@ -241,10 +241,25 @@ jobs:
    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
    ```
 
+### **Step 6: Access the ArgoCD UI**
+
+1. **Retrieve the External IP of the ArgoCD Server**:
+   
+   ```bash
+   kubectl get svc -n argocd argocd-server
+   ```
+
+   - Note the `EXTERNAL-IP` displayed. This is the address to access the ArgoCD UI.
+
+2. **Access the ArgoCD UI**:
+   - Open your web browser and navigate to `http://<EXTERNAL-IP>`.
+   - **Username**: `admin`
+   - **Password**: Use the password retrieved in the previous step.
+
 ## **Conclusion**
 
-This guide sets up a secure infrastructure CI/CD pipeline using GitHub Actions for Terraform deployment on AWS EKS. It includes provisioning an EKS cluster, setting up a Bastion Host, and installing ArgoCD for Kubernetes resource management. This configuration ensures a centralized infrastructure management approach, enhancing collaboration and security.
+This guide sets up a secure infrastructure CI/CD pipeline using GitHub Actions for Terraform deployment on AWS EKS. It includes provisioning an EKS cluster, setting up a Bastion Host, installing ArgoCD, and accessing the ArgoCD UI for Kubernetes resource management. This configuration ensures centralized and automated infrastructure management, enhancing collaboration and security.
 
 --- 
 
-Feel free to adapt this Markdown file to your specific needs!
+This Markdown file is now formatted for easy reading and step-by-step execution. Feel free to modify as needed!
