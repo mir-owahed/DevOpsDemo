@@ -82,35 +82,110 @@ Replace `us-east-1` with your actual region if it's different.
 ### 3. Configure the Backend (`backend.tf`) to use S3:
    ```hcl
    terraform {
-     backend "s3" {
-       bucket         = var.s3_bucket_name
-       key            = "terraform/state"
-       region         = var.aws_region
-       dynamodb_table = var.dynamodb_table_name
-     }
-   }
+    backend "s3" {
+        bucket = "mir-terraform-s3-bucket"
+        key    = "key/terraform.tfstate"
+        region     = "ap-south-1"        
+    }
+}
    ```
 
 ### 4. Define the Infrastructure (`main.tf`):
    Example setup for an EKS cluster:
    ```hcl
-   module "eks" {
-     source          = "terraform-aws-modules/eks/aws"
-     cluster_name    = var.cluster_name
-     cluster_version = "1.30"
-     subnets         = module.vpc.private_subnets
-     vpc_id          = module.vpc.vpc_id
+  
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+}
 
-     node_groups = {
-       eks_nodes = {
-         desired_capacity = 3
-         max_capacity     = 5
-         min_capacity     = 1
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+}
 
-         instance_type = "t3.medium"
-       }
-     }
-   }
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  route {
+    cidr_block = "10.0.0.0/16"
+    gateway_id = "local"
+  }
+}
+
+resource "aws_route_table_association" "subnet_1_association" {
+  subnet_id      = aws_subnet.subnet_1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_2_association" {
+  subnet_id      = aws_subnet.subnet_2.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_3_association" {
+  subnet_id      = aws_subnet.subnet_3.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_subnet" "subnet_1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "ap-south-1a"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "subnet_2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "ap-south-1b"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "subnet_3" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "ap-south-1c"
+  map_public_ip_on_launch = true
+}
+
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = "my-cluster"
+  cluster_version = "1.31"
+
+  cluster_endpoint_public_access = true
+
+  cluster_addons = {
+    coredns                = {}
+    eks-pod-identity-agent = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
+  }
+
+  vpc_id                   = aws_vpc.main.id
+  subnet_ids               = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
+  control_plane_subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id, aws_subnet.subnet_3.id]
+
+  eks_managed_node_groups = {
+    green = {
+      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
+      ami_type       = "AL2023_x86_64_STANDARD"
+      instance_types = ["m5.xlarge"]
+
+      min_size     = 1
+      max_size     = 1
+      desired_size = 1
+    }
+  }
+}
+
    ```
 
 ## **Step 4: GitHub Actions Workflow Setup**
