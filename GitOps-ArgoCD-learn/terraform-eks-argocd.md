@@ -256,12 +256,10 @@ GitHub Actions will:
 1. **Configure `kubectl` to access your EKS cluster**:
    ```bash
    aws eks update-kubeconfig --region ap-south-1 --name my-cluster
+   kubectl cluster-info
+   kubectl get nodes
    ```
-   ```bash
-  kubectl cluster-info
-  kubectl get nodes
-  ```
-
+  
 2. **Install ArgoCD**:
    ```bash
    kubectl create namespace argocd
