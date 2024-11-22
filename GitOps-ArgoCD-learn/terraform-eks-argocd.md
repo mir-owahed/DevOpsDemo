@@ -257,7 +257,7 @@ GitHub Actions will:
    ```bash
    aws eks update-kubeconfig --region ap-south-1 --name my-cluster
    ```
-   ```
+   ```bash
   kubectl cluster-info
   kubectl get nodes
   ```
