@@ -28,19 +28,17 @@ Create the following Terraform files in your repository.
 ```hcl
 # provider.tf
 
-provider "aws" {
-  region = var.region
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
 }
 
-# Remote backend configuration (using S3 and DynamoDB for state locking)
-terraform {
-  backend "s3" {
-    bucket         = "your-terraform-state-bucket"
-    key            = "eks-cluster/terraform.tfstate"
-    region         = var.region
-    dynamodb_table = "terraform-lock"
-    encrypt        = true
-  }
+provider "aws" {
+  region = "ap-south-1"
 }
 ```
 
@@ -65,84 +63,66 @@ variable "cluster_name" {
 #### **`main.tf`**: EKS cluster, VPC, and Bastion Host configuration.
 
 ```hcl
-# main.tf
+provider "aws" {
+  region = "ap-south-1"
+}
 
-# VPC Configuration
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = {
-    Name = "my-eks-vpc"
-  }
 }
 
-# Create Private Subnets
-resource "aws_subnet" "private" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.${count.index}.0/24"
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
-  map_public_ip_on_launch = false
-  tags = {
-    Name = "my-private-subnet-${count.index}"
-  }
-}
-
-# Create Internet Gateway for NAT Gateway
-resource "aws_internet_gateway" "igw" {
+resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "my-eks-igw"
+}
+
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
   }
 }
 
-# Create EKS Cluster
-module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = var.cluster_name
-  cluster_version = "1.30"
-  subnets         = aws_subnet.private[*].id
-  vpc_id          = aws_vpc.main.id
-  tags = {
-    Name = var.cluster_name
-  }
+resource "aws_subnet" "subnet_1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "ap-south-1a"
+  map_public_ip_on_launch = true
 }
 
-# EC2 Bastion Host Configuration
-resource "aws_key_pair" "bastion_key" {
-  key_name   = "bastion-key"
-  public_key = file("~/.ssh/id_rsa.pub")
+resource "aws_subnet" "subnet_2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "ap-south-1b"
+  map_public_ip_on_launch = true
 }
 
-resource "aws_instance" "bastion" {
-  ami                    = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI
-  instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.private[0].id
-  associate_public_ip_address = true
-  key_name               = aws_key_pair.bastion_key.key_name
-
-  tags = {
-    Name = "bastion-host"
-  }
+resource "aws_subnet" "subnet_3" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "ap-south-1c"
+  map_public_ip_on_launch = true
 }
+
+resource "aws_route_table_association" "subnet_1_association" {
+  subnet_id      = aws_subnet.subnet_1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_2_association" {
+  subnet_id      = aws_subnet.subnet_2.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet_3_association" {
+  subnet_id      = aws_subnet.subnet_3.id
+  route_table_id = aws_route_table.main.id
+}
+
 ```
 
-#### **`outputs.tf`**: Outputs for Bastion Host and SSH Key.
-
-```hcl
-# outputs.tf
-
-output "bastion_public_ip" {
-  description = "Public IP of the Bastion Host"
-  value       = aws_instance.bastion.public_ip
-}
-
-output "bastion_ssh_key" {
-  description = "SSH Key for the Bastion Host"
-  value       = aws_key_pair.bastion_key.key_name
-}
-```
 
 ### **Step 3: Configure GitHub Actions Workflow**
 
@@ -193,21 +173,6 @@ jobs:
       run: terraform apply -auto-approve
 ```
 
-### **Step 4: Access EKS Using the Bastion Host**
-
-1. **Connect to the Bastion Host**:
-   
-   ```bash
-   ssh -i ~/.ssh/id_rsa ec2-user@<Bastion_Public_IP>
-   ```
-
-2. **Install `kubectl` on the Bastion Host**:
-   
-   ```bash
-   curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.24.0/2022-06-23/bin/linux/amd64/kubectl
-   chmod +x ./kubectl
-   sudo mv ./kubectl /usr/local/bin
-   ```
 
 3. **Configure `kubectl` to access the EKS Cluster**:
    
