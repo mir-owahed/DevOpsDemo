@@ -18,6 +18,22 @@ Get Credentials
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
+---
+Access the ArgoCD UI**
+
+1. **Retrieve the External IP of the ArgoCD Server**:
+   
+   ```bash
+   kubectl get svc -n argocd argocd-server
+   ```
+
+   - Note the `EXTERNAL-IP` displayed. This is the address to access the ArgoCD UI.
+
+2. **Access the ArgoCD UI**:
+   - Open your web browser and navigate to `http://<EXTERNAL-IP>`.
+   - **Username**: `admin`
+   - **Password**: Use the password retrieved in the previous step.
+---
 OR. Install Argo CD
 1. <https://operatorhub.io/operator/argocd-operator>
 2. <https://argocd-operator.readthedocs.io/en/latest/usage/basics/>
@@ -43,6 +59,7 @@ Install on Kubernetes
     ```
     $ kubectl get csv -n operators
     ```
+    
     Copy to Clipboard
 
     To use it, checkout the custom resource definitions (CRDs) introduced by this operator to start using it.
